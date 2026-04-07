@@ -1,0 +1,41 @@
+syntax="proto3";
+
+package pubsub;
+
+option go_package = "./proto";
+
+service PubSub {
+  rpc Publish(PublishRequest) returns (PublishResponse);
+  rpc Subscribe(SubscribeRequest) returns (stream SubscribeResponse);
+}
+
+// Message represents a broker message with metadata and payload.
+message Message {
+  string topic_name = 1;
+  int32 partition_id = 2;
+  uint64 offset = 3;
+  bytes key = 4;
+  bytes value = 5;
+  int64 timestamp = 6; // Unix millis
+  map<string, bytes> headers = 7;
+}
+
+message PublishRequest {
+  Message message = 1;
+}
+
+message PublishResponse {
+  bool success = 1;
+  uint64 offset = 2; // Offset assigned by the broker
+  int32 partition_id = 3; // Partition where the message was published
+}
+
+message SubscribeRequest {
+  string topic = 1;
+  int32 partition_id = 2;
+  uint64 offset = 3; // Starting offset for subscription
+}
+
+message SubscribeResponse {
+  Message message = 1;
+}
